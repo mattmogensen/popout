@@ -20,7 +20,6 @@ def display_board(state, winning,board_height,board_length):
     plt.xticks(my_ticks)
     ax.get_yaxis().set_visible(False)
     fig.patch.set_facecolor('xkcd:light blue')
-
     
     human_color = '#A50808'
     computer_color = '#F4BC1C'
@@ -40,6 +39,7 @@ def display_board(state, winning,board_height,board_length):
         plt.text(1,board_height, '   Sorry you have lost!', fontsize=20)
     elif winning == -2:
         plt.text(1,board_height, '   The game is a tie', fontsize=20)
+
 
 def local_reward(score):
     #translates a raw score fron the board into a value
@@ -219,7 +219,7 @@ def get_random_action(state, actions, board_height, board_length):
     return random.choice(actions)
 
 
-def get_AI_action(state,depth, board_height, board_length, discount):
+def get_minimax_action(state,depth, board_height, board_length, discount):
     
     def minimax(state,player,Depth, board_height, board_length, discount):
         #print('current depth is ' + str(Depth))
@@ -267,7 +267,7 @@ def get_AI_action(state,depth, board_height, board_length, discount):
     # END_YOUR_CODE
     
     
-def display_intro(board_height, board_length):
+def display_intro(board_height, board_length, strategy):
     #generates an intro screen
 
     state = [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],\
@@ -284,11 +284,12 @@ def display_intro(board_height, board_length):
              [-1,-1,-1,-1,-1,-1,-1, 1, 1, 1,-1, 1, 1, 1,-1,-1, 1,-1,-1],\
              [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]] 
                  
-    print('Welcome to the game of Popout,')
-    print('where the first player to align 4 chips')
-    print('wins the game.')
+    print('Welcome to the game of Popout where the first player to align 4 chips wins the game.')
+    print('Enter a positive integer followed by ENTER to play your chip in a given slot.')
+    print('Enter the same number as a NEGATIVE integer followed by ENTER to pop out your bottom chip from a given slot.')
     print(' ')
     print('Human player is red and goes first')
+    print('AI opponent is using a ' + strategy + ' strategy.')
     fig, ax = plt.subplots()
     display_board(state, 0, 13, 19)
     plt.show()
@@ -302,13 +303,13 @@ def main():
     
     human = 1
     AI = -1
-    depth = 3
-    random_strategy = False
+    depth = 4
+    strategy = 'minimax'
     discount = 0.95
     board_length = 7
     board_height = 5
     fig, ax = plt.subplots() 
-    display_intro(board_length,board_height)
+    display_intro(board_length,board_height, strategy)
     matplotlib.figure.Figure.clear(fig, ax)
     state = np.zeros((board_height, board_length))
     display_board(state, 0, board_height, board_length)
@@ -348,9 +349,9 @@ def main():
             display_board(state, 0, board_height, board_length)
             plt.show()
  
-        if random_strategy is False:
+        if strategy == 'minimax':
             state = do_action(generate_copy(state, board_height, board_length),\
-                          get_AI_action(state,depth, board_height, board_length, discount),\
+                          get_minimax_action(state,depth, board_height, board_length, discount),\
                               AI, board_height, board_length)
         else:
             state = do_action(generate_copy(state, board_height, board_length),\
