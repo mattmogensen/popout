@@ -303,7 +303,7 @@ def main():
     
     human = 1
     AI = -1
-    depth = 4
+    depth = 3
     strategy = 'minimax'
     discount = 0.95
     board_length = 7
