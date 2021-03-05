@@ -41,20 +41,17 @@ def display_board(state, winning,board_height,board_length):
     elif winning == -2:
         plt.text(1,board_height, '   The game is a tie', fontsize=20)
 
-def reward(score):
+def local_reward(score):
     #translates a raw score fron the board into a value
     #LOCAL reward function, NOT a global reward function
+    #currently not implemented in the main(), might be used for final baseline
     
-    #One weakness of our program is that we are using a local reward function, where
+    #One weakness of this local reward function, where
     #we are giving a aligned sequences that we can create by playing in each slot, 
     #as opposed to a global reward function where we might consider the state of the entire board
     #An example of this weakness is that an opponent could possibly stack pieces on either side of 
     #a column and force a win 
     #later in the game
-    
-    #however we introduce some randomness as a tie-breaker which often appears to help the computer
-    #play better in fact, and orevents the human player from creating a sequence of steps that wins every time.
-    
     
     if score == 4: #first choice: do the win
         return 100000
