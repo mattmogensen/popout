@@ -19,7 +19,7 @@ def display_board(state, winning,board_height,board_length):
     del my_ticks[0]
     plt.xticks(my_ticks)
     ax.get_yaxis().set_visible(False)
-    fig.patch.set_facecolor('xkcd:mint green')
+    fig.patch.set_facecolor('xkcd:light blue')
 
     
     human_color = '#A50808'
@@ -29,8 +29,10 @@ def display_board(state, winning,board_height,board_length):
         for j in range(board_length):
             if state[i][j] == 1: 
                 plt.gcf().gca().add_artist(plt.Circle((j+1,board_height-i), 0.4, color=human_color, fill=True))
+                plt.gcf().gca().add_artist(plt.Circle((j+1,board_height-i), 0.4, color='black', fill=False))
             elif state[i][j] == -1:
                 plt.gcf().gca().add_artist(plt.Circle((j+1,board_height-i), 0.4, color=computer_color, fill=True))
+                plt.gcf().gca().add_artist(plt.Circle((j+1,board_height-i), 0.4, color='black', fill=False))
 
     if winning == 1:
         plt.text(0.25,board_height, 'Congratulations you have won!', fontsize=20)
@@ -78,40 +80,47 @@ def generate_copy(state, board_height, board_length):
     return new_state
 
 def check_win(state, player, board_height, board_length):
-    #returns True if the board state contains a player win
-    #AI plays -1
-    #human plays 1
-    new_state = state
+    #returns player if the board state contains a player win
+    #returns -player if the board state contains a -player win
+    #otherwise returns 0
     
     #check horizontal victory
     for i in range(board_height):
         for j in range(board_length-3):
-            score = sum(new_state[i][j+k] for k in range(4))
+            score = sum(state[i][j+k] for k in range(4))
             if score == 4*player:
-                return True
+                return player
+            elif score == -4*player:
+                return -player
     
     #check vertical victory
     for i in range(board_height-3):
         for j in range(board_length):
-            score = sum(new_state[i+k][j] for k in range(4))
+            score = sum(state[i+k][j] for k in range(4))
             if score == 4*player:
-                return True
+                return player
+            elif score == -4*player:
+                return -player
             
     #check backward diagonal victory
     for i in range(board_height - 3):
         for j in range(board_length - 3):
-            score = sum(new_state[i+k][j+k] for k in range(4))
+            score = sum(state[i+k][j+k] for k in range(4))
             if score == 4*player:
-                return True
+                return player
+            elif score == -4*player:
+                return -player
 
     #check forward diagonal victory
     for i in range(board_height - 3):
         for j in range(3,board_length):
-            score = sum(new_state[i+k][j-k] for k in range(4))
+            score = sum(state[i+k][j-k] for k in range(4))
             if score == 4*player:
-                return True
+                return player
+            elif score == -4*player:
+                return -player
                 
-    return False
+    return 0
     
 
 def reward(state,player):
@@ -219,9 +228,10 @@ def get_AI_action(state,depth, board_height, board_length, discount):
         #print('current depth is ' + str(Depth))
         #print('current player is ' + str(player))
         #returns the minimax value for a given agent
-        if check_win(state,-1, board_height, board_length):
+        win_state = check_win(state, player, board_height, board_length)
+        if win_state == player and player == -1:
             return 100
-        elif check_win(state,1, board_height, board_length):
+        elif win_state == player and player == 1:
             return -100
         elif Depth <= 0:
             return 0
@@ -260,23 +270,30 @@ def get_AI_action(state,depth, board_height, board_length, discount):
     # END_YOUR_CODE
     
     
-def display_intro(board_height,board_length):
+def display_intro(board_height, board_length):
     #generates an intro screen
 
-    state = [[-1,-1,-1,-1,-1,-1,-1],\
-             [1,1,1,-1,1,-1,1],\
-             [1,-1,1,-1,1,-1,1],\
-             [1,1,1,-1,1,1,1],\
-             [1,-1,-1,-1,-1,-1,1],\
-             [-1,-1,-1,-1,-1,-1,-1]]
-        
+    state = [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],\
+             [-1, 1, 1, 1,-1, 1, 1, 1,-1, 1, 1, 1,-1,-1,-1,-1,-1,-1,-1],\
+             [-1, 1,-1, 1,-1, 1,-1, 1,-1, 1,-1, 1,-1,-1,-1,-1,-1,-1,-1],\
+             [-1, 1, 1, 1,-1, 1,-1, 1,-1, 1, 1, 1,-1,-1,-1,-1,-1,-1,-1],\
+             [-1, 1,-1,-1,-1, 1,-1, 1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1],\
+             [-1, 1,-1,-1,-1, 1, 1, 1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1],\
+             [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],\
+             [-1,-1,-1,-1,-1,-1,-1, 1, 1, 1,-1, 1,-1, 1,-1, 1, 1, 1,-1],\
+             [-1,-1,-1,-1,-1,-1,-1, 1,-1, 1,-1, 1,-1, 1,-1,-1, 1,-1,-1],\
+             [-1,-1,-1,-1,-1,-1,-1, 1,-1, 1,-1, 1,-1, 1,-1,-1, 1,-1,-1],\
+             [-1,-1,-1,-1,-1,-1,-1, 1,-1, 1,-1, 1,-1, 1,-1,-1, 1,-1,-1],\
+             [-1,-1,-1,-1,-1,-1,-1, 1, 1, 1,-1, 1, 1, 1,-1,-1, 1,-1,-1],\
+             [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]] 
+                 
     print('Welcome to the game of Popout,')
     print('where the first player to align 4 chips')
     print('wins the game.')
     print(' ')
     print('Human player is red and goes first')
     fig, ax = plt.subplots()
-    display_board(state, 0, 6, 7)
+    display_board(state, 0, 13, 19)
     plt.show()
     input('- Press ENTER button to continue -')
     
@@ -284,7 +301,6 @@ def display_intro(board_height,board_length):
     display_board(np.zeros((board_height,board_length)),0,board_height, board_length)
     plt.show()
         
-          
 def main():
     
     human = 1
@@ -292,33 +308,33 @@ def main():
     depth = 3
     random_strategy = False
     discount = 0.95
-    
-    board_length = 5
+    board_length = 7
     board_height = 5
-    
-    state = np.zeros((board_height,board_length))
-    plt.show()
-    fig, ax = plt.subplots()
-    plt.show()
+    fig, ax = plt.subplots() 
+    display_intro(board_length,board_height)
     matplotlib.figure.Figure.clear(fig, ax)
-    display_intro(board_height,board_length)
+    state = np.zeros((board_height, board_length))
+    display_board(state, 0, board_height, board_length)
+    plt.show()
     
     end_game = False
     while end_game is False:
+        
+        plt.show()
         
         state = do_action(generate_copy(state, board_height, board_length),\
                           get_human_action(state, board_height, board_length),\
                               human, board_height, board_length)
 
-        #print(state)
+        win_state = check_win(state, AI, board_height, board_length)
         print(' ')
-        if check_win(state, AI, board_height, board_length):
+        if win_state == -1:
             print('Sorry, the computer has won.')
             display_board(state, -1, board_height, board_length)
             plt.show()
             sys.exit
         
-        elif check_win(state, human, board_height, board_length):
+        elif win_state == 1:
             print('Congratulations, you have won!!')
             display_board(state, 1, board_height, board_length)
             plt.show()
@@ -344,13 +360,15 @@ def main():
                           get_random_action(state,depth, board_height, board_length),\
                               AI, board_height, board_length)
     
-        if check_win(state, AI, board_height, board_length):
+        win_state = check_win(state, AI, board_height, board_length)
+    
+        if win_state == -1:
             print('Sorry, the computer has won.')
             display_board(state, -1, board_height, board_length)
             plt.show()
             sys.exit
             
-        elif check_win(state, human, board_height, board_length):
+        elif win_state == 1:
             print('Congratulations, you have won!!')
             display_board(state, 1, board_height, board_length)
             plt.show()
