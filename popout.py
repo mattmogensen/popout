@@ -34,11 +34,11 @@ def display_board(state, winning,board_height,board_length):
                 plt.gcf().gca().add_artist(plt.Circle((j+1,board_height-i), 0.4, color='black', fill=False))
 
     if winning == 1:
-        plt.text(0.25,board_height, 'Congratulations you have won!', fontsize=20)
+        plt.text(0.25,board_height, 'Player 1 has won!', fontsize=20)
     elif winning == -1:
-        plt.text(1,board_height, '   Sorry you have lost!', fontsize=20)
+        plt.text(1,board_height, 'Player 2 has won!', fontsize=20)
     elif winning == -2:
-        plt.text(1,board_height, '   The game is a tie', fontsize=20)
+        plt.text(1,board_height, 'The game is a tie', fontsize=20)
 
 
 def reward(score,player):
@@ -68,116 +68,6 @@ def reward(score,player):
     else:
         return 0
     
-def value(state,action,player,board_height,board_length):
-    #Given a board state, and an action that is to be played by 'player',
-    #return the expected immediate reward
-    
-    new_state = do_action(generate_copy(state), action, player, board_height, board_length)
-    scores = []
-    
-    #if we added a chip:
-        
-    if rount(action) == action:
-        
-        s = action
-        h = height(action)
-
-        #check horizontal
-        for i in range(board_height):
-            for j in range(board_length - 3):
-                #check if sequence contains action
-                count = 0
-                for k in range(4):
-                    if h == i and s == j+k:
-                        count +=1
-                if count > 0:
-                    score = 0
-                    #then calculate a score
-                    for k in range(4):
-                        if new_state[i][j+k] == player:
-                            #add 10 for player's chip
-                            score += 10
-                        elif new_state[i][j+k] == -player:
-                            #add 1 for opponent's chip
-                            score += 1
-                                 
-                    if j < 3 and score != 31:
-                        #check for really bad moves
-                        if new_state[i][j] == -player and new_state[i][j+1] == 0 and\
-                            new_state[i][j+2] == player and new_state[i][j+3] == player and\
-                                new_state[i][j+4] == 0:
-                                scores.append(0)
-                        elif new_state[i][j] == 0 and new_state[i][j+1] == player and\
-                            new_state[i][j+2] == player and new_state[i][j+3] == 0 and\
-                                new_state[i][j+4] == -player:
-                                scores.append(0)      
-                        else:
-                            #print('######## appending score inside check condition' + str(score))
-                            scores.append(reward(score))
-                    else:
-                        #print('@@@@@@@@ appending score outside check condition' + str(score))
-                        scores.append(reward(score))   
-                              
-        #check vertical
-        for i in range(board_height - 3):
-            for j in range(board_length):
-                #check if sequence contains action
-                count = 0
-                for k in range(4):
-                    if h == i+k and s == j:
-                        count +=1
-                if count > 0:
-                    score = 0
-                    #then calculate a score
-                    for k in range(4):
-                        if new_state[i+k][j] == player:
-                            score += 10
-                        elif new_state[i+k][j] == -player:
-                            score += 1
-                    scores.append(reward(score))
-                
-        #check backward diagonal
-        for i in range(3):
-            for j in range(4):
-                #check if sequence contains action
-                count = 0
-                for k in range(4):
-                    if h == i+k and s == j+k:
-                        count +=1
-                if count > 0:
-                    score = 0
-                    #then calculate a score
-                    for k in range(4):
-                        if new_state[i+k][j+k] == player:
-                            score += 10
-                        elif new_state[i+k][j+k] == -player:
-                            score += 1
-                    scores.append(reward(score))
-    
-        #check forward diagonal
-        for i in range(3):
-            for j in range(3,7):
-                #check if sequence contains action
-                count = 0
-                for k in range(4):
-                    if h == i+k and j == j-k:
-                        count +=1
-                if count > 0:
-                    score = 0
-                    #then calculate a score
-                    for k in range(4):
-                        if new_state[i+k][j-k] == player:
-                            score += 10
-                        elif new_state[i+k][j-k] == -player:
-                            score += 1
-                    scores.append(reward(score))
-                    
-    else:
-        
-        action = action - 0.5
-        scores = [0]
-              
-    return max(scores)
 
 def generate_copy(state, board_height, board_length):
     #makes a copy to avoid Python creasting a pointer
@@ -376,11 +266,12 @@ def get_minimax_action(state,depth, board_height, board_length, discount):
         return best
     
     a = maxOverActions(state, -1, depth,  board_height, board_length)
-    print('best AI play is : ' + str(a))
+    #print('best AI play is : ' + str(a))
     return a[1]
     # END_YOUR_CODE
     
 def getalpha_beta_action(state,depth, board_height, board_length, discount):
+    #not yet implemented
     
     def minimax(state,player,Depth, board_height, board_length, discount):
         #print('current depth is ' + str(Depth))
@@ -426,6 +317,7 @@ def getalpha_beta_action(state,depth, board_height, board_length, discount):
     #print('we are returning ' + str(a))
     return a[1]
     # END_YOUR_CODE
+
         
     
 def display_intro(board_height, board_length, strategy):
@@ -491,20 +383,20 @@ def main():
             print('Sorry, the computer has won.')
             display_board(state, -1, board_height, board_length)
             plt.show()
-            sys.exit
+            return win_state
         
         elif win_state == 1:
             print('Congratulations, you have won!!')
             display_board(state, 1, board_height, board_length)
             plt.show()
-            sys.exit()
+            return win_state
 
         elif tie(state, board_height, board_length):
             print('The game is a tie.')
             winning = -2
             display_board(state, -2, board_height, board_length)
             plt.show()
-            sys.exit()
+            return 0
             
         else:
             display_board(state, 0, board_height, board_length)
@@ -525,24 +417,114 @@ def main():
             print('Sorry, the computer has won.')
             display_board(state, -1, board_height, board_length)
             plt.show()
-            sys.exit
+            return win_state
             
         elif win_state == 1:
             print('Congratulations, you have won!!')
             display_board(state, 1, board_height, board_length)
             plt.show()
-            sys.exit
+            return win_state
 
         elif tie(state, board_height, board_length):
             print('The game is a tie.')
             display_board(state, -2, board_height, board_length)
             plt.show()
-            sys.exit()
+            return 0
             
         else:             
             display_board(state,  0, board_height, board_length)
             plt.show()
             
+def test_metrics(display):
+    iterations = 10
+    human = 1
+    AI = -1
+    depth = 3
+    strategy_player_1 = 'minimax'
+    strategy_player_2 = 'random'
+    discount = 0.95
+    board_length = 6
+    board_height = 6
+    if display:
+        fig, ax = plt.subplots() 
+        matplotlib.figure.Figure.clear(fig, ax)
+    state = np.zeros((board_height, board_length))
+    
+    num_strat1_wins = 0
+    num_strat2_wins = 0
+    
+    for count in range(iterations):
 
-main()
+        state = generate_copy(np.zeros((board_height, board_length)), board_height, board_length)
+        end_game = False
+        while end_game is False:    
+            
+            if strategy_player_1 == 'minimax':
+                state = do_action(generate_copy(state, board_height, board_length),\
+                              get_minimax_action(state,depth, board_height, board_length, discount),\
+                                  human, board_height, board_length)
+            else:
+                state = do_action(generate_copy(state, board_height, board_length),\
+                              get_random_action(state,depth, board_height, board_length),\
+                                  human, board_height, board_length)
+    
+            win_state = check_win(state, board_height, board_length)
+
+            if win_state == -1:
+                if display:
+                    display_board(state, -1, board_height, board_length)
+                    plt.show()
+                num_strat2_wins += 1
+                end_game = True
+            
+            elif win_state == 1:
+                if display:
+                    display_board(state, 1, board_height, board_length)
+                    plt.show()
+                num_strat1_wins += 1
+                end_game = True
+    
+            elif tie(state, board_height, board_length):
+                if display:
+                    display_board(state, -2, board_height, board_length)
+                    plt.show()
+                end_game = True
+     
+            if strategy_player_2 == 'minimax':
+                state = do_action(generate_copy(state, board_height, board_length),\
+                              get_minimax_action(state,depth, board_height, board_length, discount),\
+                                  AI, board_height, board_length)
+            else:
+                state = do_action(generate_copy(state, board_height, board_length),\
+                              get_random_action(state,depth, board_height, board_length),\
+                                  AI, board_height, board_length)
+        
+            win_state = check_win(state, board_height, board_length)
+        
+            if win_state == -1:
+                if display:
+                    display_board(state, -1, board_height, board_length)
+                    plt.show()
+                num_strat2_wins += 1
+                end_game = True
+                
+            elif win_state == 1:
+                if display:
+                    display_board(state, 1, board_height, board_length)
+                    plt.show()
+                num_strat1_wins += 1
+                end_game = True
+    
+            elif tie(state, board_height, board_length):
+                if display:
+                    display_board(state, -2, board_height, board_length)
+                    plt.show()
+                end_game = True
+
+    print('number of ' + strategy_player_1 + ' wins: ' + str(num_strat1_wins))
+    print('number of ' + strategy_player_2 + ' wins: ' + str(num_strat2_wins))
+
+#main()
+test_metrics(display = False)
+
 
